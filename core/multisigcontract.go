@@ -3,6 +3,7 @@ package core
 import (
 	"crypto/ed25519"
 	"fmt"
+	"reflect"
 )
 
 type MultiSigContract struct {
@@ -16,12 +17,6 @@ type MultiSigContract struct {
 	MessageReceived map[string][]byte
 	SignedMap       map[string]map[*ed25519.PublicKey]bool
 	CommittedMap    map[string]bool
-}
-
-type MultiSigConfig struct {
-	PubkeySet []ed25519.PublicKey
-	Quorum    uint32
-	Leader    ed25519.PublicKey
 }
 
 func NewMultiSigContract(conf *MultiSigConfig) *MultiSigContract {
@@ -39,9 +34,9 @@ func NewMultiSigContract(conf *MultiSigConfig) *MultiSigContract {
 }
 
 func (con *MultiSigContract) GenAddr() string {
-	var addr string
-	//TODO: implement genaddr
 
+	//TODO: implement genaddr
+	addr := "0x01"
 	return addr
 }
 
@@ -82,4 +77,36 @@ func (con *MultiSigContract) HasRegistered(pubkey ed25519.PublicKey) bool {
 		}
 	}
 	return false
+}
+
+func (con *MultiSigContract) invoke(param []byte, functionname string) string {
+	conForReflect := &MultiSigContract{}
+	contracttype := reflect.TypeOf(conForReflect)
+	method, exist := contracttype.MethodByName(functionname)
+	if exist {
+		fmt.Println("function name " + functionname + "exists")
+		params := []reflect.Value{reflect.ValueOf(param)}
+		retValues := method.Func.Call(params)
+		return con.parseReflectValues(retValues)
+	} else {
+		fmt.Println("function name %s doesn't exist", functionname)
+		return "function name doesn't exist" + functionname
+	}
+
+	// switch functionname {
+	// case "receivemessage":
+	// 	con.ReceiveMessage(param)
+	// case "signmessage":
+	// 	con.SignMessage(param, nil)
+	// case "commitmessage":
+	// 	con.Commit(param)
+	// default:
+	// 	fmt.Printf("function name %s undefined", functionname)
+
+	// }
+
+}
+
+func (con *MultiSigContract) parseReflectValues(in []reflect.Value) string {
+	return ""
 }

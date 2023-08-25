@@ -1,8 +1,6 @@
 package main
 
-import (
-	"cyd/core"
-)
+import "multisig/core"
 
 func main() {
 	con := core.NewMultiSigContract(nil)
@@ -10,6 +8,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	n.Con = con
-	n.SignMessage([]byte("hello"))
+
+	n.Contractmap[con.Addr] = con
+	n.Invoke([]byte{1}, "ReceiveMessage223", con.Addr)
+
+	//n.SignMessage([]byte("hello"))
 }
